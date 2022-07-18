@@ -3,17 +3,19 @@ title: 在ubuntu中构建x86_64-linux for windows
 tags: pcsys
 ---
 
-## 构建
+
 
 本篇博文介绍如何在Ubuntu上构建一个在Windows中运行（`*.exe`）并为Linux编译可执行文件（`*.elf`）的交叉编译器。这个交叉编译器称为“x86_64-linux for windows”。
 
-### 为什么要构建x86_64-linux for windows
+<!--more-->
+
+## 交叉编译
 
 在搭建操作系统的开发环境中，于渊的《Orange S: 一个操作系统的实现》给出了很详细的建议和方案。总结一点：Linux系统是开发操作系统的首选平台。但是，由于无法完全抛弃Windows，所以通常将Linux系统安装在虚拟机中来实现跨系统访问的。于是，这让操作系统的开发过程变成这样：
 
-    1. 首先，在Windows中编写程序；
-    2. 然后，切换到虚拟机中的Linux中编译程序；
-    3. 最后，返回到Windows调试程序。
+1. 首先，在Windows中编写程序；
+2. 然后，切换到虚拟机中的Linux中编译程序；
+3. 最后，返回到Windows调试程序。
 
 可以看到，整个开发过程是非常繁琐的很浪费时间。为了简化开发操作，需要所用到的开发工具的Windows版本，以求在Windows完成所有的操作，而不用切换到虚拟机中的linux系统。很幸运，大部分的工具都找到了对应的Windows版本。其中，最重要的gcc编译器的Windows版本是[MinGW-w64](https://sourceforge.net/projects/MinGW-w64)。
 
@@ -30,13 +32,17 @@ ld.exe: cannot perform PE operations on non PE output file 'main.bin'
 
 这是没办法的，MinGW-w64只能编译产生在Windows上运行的可执行文件（`*.exe`），不能编译产生在Linux上运行的可执行文件（`*.elf`）。要想使用gcc制作平坦纯二进制文件，只能通过elf格式的可执行文件 。
 
-在[OSDev Wiki](https://wiki.osdev.org/)中提供了一篇[GCC_Cross-Compiler](https://wiki.osdev.org/GCC_Cross-Compiler)教程，从中找到了一个解决方案，那就是**构建一个交叉编译器**。在这个教程的底部提供了许多为每个系统预构建的交叉编译器。其中，为Windows主机构建的是[i686-/x86_64-elf 7.1.0 target + GDB](https://github.com/lordmilko/i686-elf-tools)。打开链接，进入它的github。根据它所提供的脚本，可以成功地构建了一个在Windows中运行并为Linux编译可执行文件的交叉编译器。但是，这个编译器是Freestanding版本的（不支持头、库和运行时文件）。
+在[OSDev Wiki](https://wiki.osdev.org/)中提供了一篇[GCC_Cross-Compiler](https://wiki.osdev.org/GCC_Cross-Compiler)教程，从中找到了一个解决方案，那就是**交叉编译**。在这个教程的底部提供了许多为每个系统预构建的交叉编译器。其中，为Windows主机构建的是[i686-/x86_64-elf 7.1.0 target + GDB](https://github.com/lordmilko/i686-elf-tools)。打开链接，进入它的github。根据它所提供的脚本，可以成功地构建了一个在Windows中运行并为Linux编译可执行文件的交叉编译器。但是，这个编译器是Freestanding版本的（不支持头、库和运行时文件）。
 
 在网上，也有很多教程演示了如何构建一个Hosted版本的交叉编译器。比较全面的教程是[How to Build a GCC Cross-Compiler](https://preshing.com/20141119/how-to-build-a-gcc-cross-compiler/)（网上有翻译的[中文版](https://blog.csdn.net/fickyou/article/details/51671006)）和[gcc 9.2 交叉编译器构建过程](https://www.cnblogs.com/summitzhou/p/12503647.html)。（这里，感谢开发者的无私分享！让我从中找到了很多有用的信息。）
 
 当我认为它能完全胜任我的工作时，又发现了一个问题：不支持多库。也就是，不能使用`gcc -m32`选项编译产生32位代码。不能产生16位代码也就算了，连32位代码也不能产生，这如何能在保护模式大展拳脚？！
 
-为了构建一个支持多库的宿主交叉编译器，尝试了很多构建方法。在处理了无数个莫名奇妙的构建错误之后，终于，还是在崩溃的边缘构建成功了！为了方便记忆，记录下这篇笔记！
+为了构建一个支持**多库**的**宿主交叉编译器**，尝试了很多构建方法。在处理了无数个莫名奇妙的构建错误之后，终于，还是在崩溃的边缘构建成功了！为了方便记忆，写录下这篇笔记！
+
+## 构建过程
+
+本篇博文介绍如何在Ubuntu上构建一个在Windows中运行（`*.exe`）并为Linux编译可执行文件（`*.elf`）的交叉编译器。这个交叉编译器称为“x86_64-linux for windows”。
 
 ### 在虚拟机中安装Linux系统
 
@@ -1267,7 +1273,7 @@ zip命令中的`*`表示压缩当前目录中的所有文件和目录。`-r`选�
 
 所有的可执行文件的文件名都以`x86_64-linux-`为前缀。例如，gcc的文件名为`x86_64-linux-gcc`。
 
-## 使用
+## 安装使用
 
 将**x86_64-linux-tools.zip**复制到Windows中，将其解压到某个目录（例如**D:\osdev**）就可以使用了。在解压时，会出现有重复文件的提示。这是因为Windows的文件系统不区分文件名大小写而造成的。在解压时，可以选择重命名或覆盖，都不会影响工具的使用。
 
@@ -1529,7 +1535,7 @@ Clink将cmd与 GNU Readline 库强大的命令行编辑功能相结合，提供�
 
 更多帮助信息，请查看Clink安装目录中的clink.html（C:\Program Files (x86)\clink\0.4.9\clink.html）。
 
-## 调试
+## 远程调试
 
 本节是对“在Ubuntu中构建x86_64-linux for windows”笔记的补充说明，用于解释如何使用x86_64-linux for windows工具链中的`x86_64-linux-gdb/gdbserver`命令来执行远程调试。
 
