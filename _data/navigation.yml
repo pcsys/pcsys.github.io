@@ -1,13 +1,17 @@
 header:
-  - titles: 主页
+    - titles:
+      en      : &EN    Home
+      zh      : *ZH    主页
     url: /home.html
-  - titles: Open-Source
-    url: /open-source.html
-  - titles: 博客
-    url: /blog.html
-  - titles: 书签
-    url: /bookmark.html
-  - titles: 归档
+  - titles:
+      en      : &EN    Bookmark
+      zh      : *ZH    标签
     url: /archive.html
-  - titles: 关于
+  - titles:
+      en      : &EN    Archive
+      zh      : *ZH    归档
+    url: /archive.html
+  - titles:
+      en      : &EN    About
+      zh      : *ZH    关于
     url: /about.html
